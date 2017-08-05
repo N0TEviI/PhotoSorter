@@ -5,6 +5,7 @@
 # __homepage__ = 'https://github.com/P0WER1ISA'
 from datetime import datetime
 import os
+from multiprocessing import Process
 import argparse
 import shutil
 import exifread
@@ -23,6 +24,7 @@ class PhotoSorter(object):
     _save_mode = None
     _copy_file = None
     _rename_file = None
+    _counter = 0
 
     def __init__(self, source_dir=None, save_dir=None) -> None:
         """初始化"""
@@ -56,7 +58,7 @@ class PhotoSorter(object):
         self._rename_file = rename_file
 
     def __walk_files(self):
-        """递归批量处理文件"""
+        """递归批量返回待处理文件"""
         if os.path.exists(self._source_dir):
             for dirpath, dirnames, filenames in os.walk(self._source_dir):
                 for name in filenames:
@@ -67,54 +69,78 @@ class PhotoSorter(object):
 
     def files_to_dispose(self) -> None:
         """处理文件"""
-        i = 0
         for fname in self.__walk_files():
             file_ext = os.path.splitext(fname)[1].lower()
             if file_ext in config.PHOTOEXT:
                 with open(fname, 'rb') as f:
                     tags = exifread.process_file(f)
                     try:
-                        datetime_original = tags['EXIF DateTimeOriginal']
+                        datetime_original = tags['EXIF DateTimeOriginal']  # 获取文件创建时间
                     except KeyError:
                         datetime_original = None
-                    """保存处理后的文件"""
-                    save_filepath, save_filename_without_ext = self.__get_output_dir(datetime_original)
+                    save_dir, save_filename_without_ext = self.__get_output_dir_filename(datetime_original)
                     save_filename = os.path.basename(fname)
                     if self.rename_file:
                         save_filename = save_filename_without_ext + os.path.splitext(fname)[1].lower()
-                    if not os.path.exists(save_filepath):
+                    if not os.path.exists(save_dir):
                         try:
-                            os.makedirs(save_filepath)
+                            os.makedirs(save_dir)
+                            self._counter += 1
+                            p = Process(target=PhotoSorter._save_file,
+                                        args=(self._counter, self._copy_file, fname, os.path.join(save_dir, save_filename)))
+                            p.start()
                         except:
-                            raise IOError('Path does not create：{0}'.format(save_filepath))
-                    if self.copy_mode:
-                        shutil.copyfile(fname, os.path.join(save_filepath, save_filename))
-                    else:
-                        shutil.move(fname, os.path.join(save_filepath, save_filename))
-                    i += 1
-                    print('{0} >>> source:{1} -> to:{2}'.format(i, fname, os.path.join(save_filepath, save_filename)))
+                            raise IOError('Path does not create：{0}'.format(save_dir))
 
-    def __get_output_dir(self, datetime_original) -> tuple:
+    @staticmethod
+    def _save_file(counter, copy_file, source_file, save_file):
+        """
+        保存文件
+        :param counter:计数器
+        :param copy_file:复制模式
+        :param source_file:原文件
+        :param save_file:目标文件
+        :return:
+        """
+        if copy_file:
+            shutil.copyfile(source_file, save_file)
+        else:
+            shutil.move(source_file, save_file)
+
+        print('{0} >>> source:{1} -> to:{2}'.format(counter, source_file, save_file))
+
+    def __get_output_dir_filename(self, datetime_original) -> tuple:
+        """
+        根据文件创建时间返回文件的存放路径
+        :param datetime_original:
+        :return:
+        """
+        # 初始化年月日
         year, month, day = datetime.min.year, datetime.min.month, datetime.min.day
+        # 初始化时分秒
         hour, minute, second = datetime.now().hour, datetime.now().minute, datetime.now().second
-        try:
-            t = datetime.strptime(str(datetime_original), '%Y:%m:%d %H:%M:%S')
-            year, month, day = t.year, t.month, t.day
-            hour, minute, second = t.hour, t.minute, t.second
-        except Exception as e:
-            logging.error('Error message:{0}.'.format(e))
+        if datetime_original is not None:
+            try:
+                # 转换datetime_original，得到年月日时分秒
+                t = datetime.strptime(str(datetime_original), '%Y:%m:%d %H:%M:%S')
+                year, month, day = t.year, t.month, t.day
+                hour, minute, second = t.hour, t.minute, t.second
+            except Exception as e:
+                logging.error('Error message:{0}.'.format(e))
         if self.save_mode == 'year':
+            # 按照年份保存
             return os.path.join(self._save_dir, str(year)), ''.join(
                 [str(year), str(month), str(day), str(hour), str(minute), str(second)])
         elif self.save_mode == 'month':
+            # 按照年份月份保存
             return os.path.join(self._save_dir, str(year), str(month)), ''.join(
                 [str(year), str(month), str(day), str(hour), str(minute), str(second)])
         elif self.save_mode == 'day':
+            # 按照年份月份日期保存
             return os.path.join(self._save_dir, str(year), str(month), str(day)), ''.join(
                 [str(year), str(month), str(day), str(hour), str(minute), str(second)])
         else:
-            raise ValueError(
-                'Save_mode is error:\'{0}\'.'.format(self.save_mode))
+            raise ValueError('Save_mode is error:\'{0}\'.'.format(self.save_mode))
 
 
 if __name__ == "__main__":
