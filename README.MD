@@ -23,3 +23,16 @@ optional arguments:
   -R, --rename          文件是否按照日期重命名
   -V, --version         显示程序版本号
 </pre>
+
+
+### Ex.
+![](https://raw.githubusercontent.com/P0WER1ISA/PhotoSorter/master/screenshots/1.png)
+ 
+ 
+![](https://raw.githubusercontent.com/P0WER1ISA/PhotoSorter/master/screenshots/2.png)
+
+
+![](https://raw.githubusercontent.com/P0WER1ISA/PhotoSorter/master/screenshots/3.png)
+
+
+![](https://raw.githubusercontent.com/P0WER1ISA/PhotoSorter/master/screenshots/4.png)
