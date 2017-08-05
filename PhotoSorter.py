@@ -3,9 +3,11 @@
 # Date:2017/8/5 11:16
 # __author__ = 'P0WER1ISA'
 # __homepage__ = 'https://github.com/P0WER1ISA'
+from datetime import datetime
 import os
 import argparse
 import shutil
+import exifread
 import logging
 import config
 
@@ -13,25 +15,15 @@ logging.basicConfig(handlers=[logging.FileHandler(config.LOGFILE, 'w')],
                     level=logging.ERROR,
                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S', )
-from datetime import datetime
-import exifread
 
 
 class PhotoSorter(object):
-    """定义类"""
+    """图片处理类"""
 
-    # 待处理文件夹
-    _source_dir = None
-    # 归档后输出文件夹
-    _save_dir = None
-    # 文档按照年、月、日存储
-    _save_mode = None
-    # 采用复制模式，否则删除原有文件
-    _copy_file = None
-    # 是否以时间方式重命名文件
-    _rename_file = None
+    _source_dir, _save_dir, _save_mode, _copy_file, _rename_file = None
 
     def __init__(self, source_dir=None, save_dir=None, save_mode=None, copy_file=None, rename_file=None) -> None:
+        """初始化"""
         self._source_dir = source_dir
         self._save_dir = save_dir
         self._save_mode = save_mode
@@ -79,7 +71,8 @@ class PhotoSorter(object):
         else:
             raise IOError('Path does not exist: {0}'.format(self.input_dir))
 
-    def __save_file(self, filename, datetime_original):
+    def __save_file(self, filename, datetime_original) -> None:
+        """保存处理后的文件"""
         save_filepath, save_filename = self.__get_output_dir(datetime_original)
 
         if self.rename_file:
@@ -120,7 +113,6 @@ class PhotoSorter(object):
                 'Save_mode is error:\'{0}\'.'.format(self.save_mode))
 
 
-# ''.join(str(hour), str(minute), str(second)
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('source_dir', help='待处理图片文件的路径，例如：C:\\Photos')
