@@ -1,0 +1,8 @@
+# Created by .ignore support plugin (hsz.mobi)
+.gitignore
+.idea/PhotoSorter.iml
+.idea/dbnavigator.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/workspace.xml
+venv/
