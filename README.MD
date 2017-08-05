@@ -25,7 +25,7 @@ optional arguments:
 </pre>
 
 
-### Ex.
+### Ex：
 ![](https://raw.githubusercontent.com/P0WER1ISA/PhotoSorter/master/screenshots/1.png)
  
  
