@@ -13,7 +13,7 @@ ___
 usage: photosorter.py [-h] [-M MODE] [-C] [-R] [-V] source_dir save_dir
 
 positional arguments:
-  source_dir            待处理图片文件的路径，例如：C:\Photos
+  source_dir            待处理图片文件的路径，例如：c:\source_dir
   save_dir              归档后的文件存放路径
 
 optional arguments:
@@ -23,16 +23,3 @@ optional arguments:
   -R, --rename          文件是否按照日期重命名
   -V, --version         显示程序版本号
 </pre>
-
-
-### Ex：
-![](https://raw.githubusercontent.com/P0WER1ISA/PhotoSorter/master/screenshots/1.png)
- 
- 
-![](https://raw.githubusercontent.com/P0WER1ISA/PhotoSorter/master/screenshots/2.png)
-
-
-![](https://raw.githubusercontent.com/P0WER1ISA/PhotoSorter/master/screenshots/3.png)
-
-
-![](https://raw.githubusercontent.com/P0WER1ISA/PhotoSorter/master/screenshots/4.png)

@@ -57,6 +57,30 @@ class PhotoSorter(object):
     def rename_file(self, rename_file):
         self._rename_file = rename_file
 
+    def run(self):
+        """程序入口"""
+        for fname in [filename for filename in self.__walk_files() if
+                      os.path.splitext(filename)[1].lower() in config.PHOTOEXT]:
+            file_ext = os.path.splitext(fname)[1].lower()
+            with open(fname, 'rb') as f:
+                tags = exifread.process_file(f)
+                try:
+                    datetime_original = tags['EXIF DateTimeOriginal']  # 获取文件创建时间
+                except KeyError:
+                    datetime_original = None
+
+                save_dir, save_filename_without_ext = self.__get_output_dir_filename(datetime_original)
+                if self.rename_file:
+                    save_filename = save_filename_without_ext + file_ext
+                else:
+                    save_filename = os.path.basename(fname)
+
+                self._counter += 1
+                p = Process(target=PhotoSorter._save_file,
+                            args=(self._counter, self._copy_file, fname, save_dir, save_filename))
+                p.start()
+                p.join()
+
     def __walk_files(self):
         """递归批量返回待处理文件"""
         if os.path.exists(self._source_dir):
@@ -67,41 +91,23 @@ class PhotoSorter(object):
         else:
             raise IOError('Path does not exist: {0}'.format(self._source_dir))
 
-    def files_to_dispose(self) -> None:
-        """处理文件"""
-        for fname in self.__walk_files():
-            file_ext = os.path.splitext(fname)[1].lower()
-            if file_ext in config.PHOTOEXT:
-                with open(fname, 'rb') as f:
-                    tags = exifread.process_file(f)
-                    try:
-                        datetime_original = tags['EXIF DateTimeOriginal']  # 获取文件创建时间
-                    except KeyError:
-                        datetime_original = None
-                    save_dir, save_filename_without_ext = self.__get_output_dir_filename(datetime_original)
-                    save_filename = os.path.basename(fname)
-                    if self.rename_file:
-                        save_filename = save_filename_without_ext + os.path.splitext(fname)[1].lower()
-                    if not os.path.exists(save_dir):
-                        try:
-                            os.makedirs(save_dir)
-                            self._counter += 1
-                            p = Process(target=PhotoSorter._save_file,
-                                        args=(self._counter, self._copy_file, fname, os.path.join(save_dir, save_filename)))
-                            p.start()
-                        except:
-                            raise IOError('Path does not create：{0}'.format(save_dir))
-
     @staticmethod
-    def _save_file(counter, copy_file, source_file, save_file):
+    def _save_file(counter, copy_file, source_file, save_dir, save_filename):
         """
         保存文件
         :param counter:计数器
         :param copy_file:复制模式
         :param source_file:原文件
-        :param save_file:目标文件
+        :param save_dir:目标文件夹
+        :param save_filename:目标文件名
         :return:
         """
+        if not os.path.exists(save_dir):
+            try:
+                os.makedirs(save_dir)
+            except IOError:
+                raise IOError('Path does not create：{0}'.format(save_dir))
+        save_file = os.path.join(save_dir, save_filename)
         if copy_file:
             shutil.copyfile(source_file, save_file)
         else:
@@ -109,7 +115,7 @@ class PhotoSorter(object):
 
         print('{0} >>> source:{1} -> to:{2}'.format(counter, source_file, save_file))
 
-    def __get_output_dir_filename(self, datetime_original) -> tuple:
+    def __get_output_dir_filename(self, datetime_original):
         """
         根据文件创建时间返回文件的存放路径
         :param datetime_original:
@@ -145,7 +151,7 @@ class PhotoSorter(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('source_dir', help='待处理图片文件的路径，例如：C:\\Photos')
+    parser.add_argument('source_dir', help='待处理图片文件的路径，例如：c:\\source_dir')
     parser.add_argument('save_dir', help='归档后的文件存放路径')
     parser.add_argument('-M', '--mode', help='图片文件按照年份(year)、月份(month)、日期(day)，进行归档，默认是月份', default='month')
     parser.add_argument('-C', '--copy', help='复制文件，不删除原文件', action='store_true')
@@ -167,4 +173,5 @@ if __name__ == "__main__":
     ps.copy_mode = _copy_file
     ps.rename_file = _rename_file
 
-    ps.files_to_dispose()
+    ps.run()
+    print('\nAll tasks have been completed.')
