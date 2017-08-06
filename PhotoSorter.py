@@ -69,17 +69,17 @@ class PhotoSorter(object):
                 except KeyError:
                     datetime_original = None
 
-                save_dir, save_filename_without_ext = self.__get_output_dir_filename(datetime_original)
-                if self.rename_file:
-                    save_filename = save_filename_without_ext + file_ext
-                else:
-                    save_filename = os.path.basename(fname)
+            save_dir, save_filename_without_ext = self.__get_output_dir_filename(datetime_original)
+            if self.rename_file:
+                save_filename = save_filename_without_ext + file_ext
+            else:
+                save_filename = os.path.basename(fname)
 
-                self._counter += 1
-                p = Process(target=PhotoSorter._save_file,
-                            args=(self._counter, self._copy_file, fname, save_dir, save_filename))
-                p.start()
-                p.join()
+            self._counter += 1
+            p = Process(target=PhotoSorter._save_file,
+                        args=(self._counter, self._copy_file, fname, save_dir, save_filename))
+            p.start()
+            p.join()
 
     def __walk_files(self):
         """递归批量返回待处理文件"""
