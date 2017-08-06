@@ -4,5 +4,5 @@
 # __author__ = 'P0WER1ISA'
 # __homepage__ = 'https://github.com/P0WER1ISA'
 
-PHOTOEXT = ['.jpg', '.jpeg', '.gif', '.bmp']
+PHOTOEXT = ['.jpg', '.jpeg', '.gif', '.bmp', '.png']
 LOGFILE = 'log.log'
