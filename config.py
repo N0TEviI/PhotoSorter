@@ -5,5 +5,5 @@
 # __homepage__ = 'https://github.com/P0WER1ISA'
 
 PHOTOEXT = ['.jpg', '.jpeg', '.gif', '.bmp', '.png', '.cr2']
-VIDEOEXT = ['.mp4', '.mov']
+VIDEOEXT = ['.mp4', '.mov', '.avi']
 LOGFILE = 'log.log'
