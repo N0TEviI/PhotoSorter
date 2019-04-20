@@ -6,4 +6,5 @@
 
 PHOTOEXT = ['.jpg', '.jpeg', '.gif', '.bmp', '.png', '.cr2']
 VIDEOEXT = ['.mp4', '.mov', '.avi']
+HEICEXT = ['.heic']
 LOGFILE = 'log.log'

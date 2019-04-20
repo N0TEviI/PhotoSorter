@@ -56,7 +56,8 @@ class VideoSorter(object):
     def rename_file(self, rename_file):
         self._rename_file = rename_file
 
-    def get_video_timestamps(self, filename):
+    @staticmethod
+    def get_video_timestamps(filename):
         ''' Get the creation and modification date-time from .mov metadata.
 
             Returns None if a value is not available.
