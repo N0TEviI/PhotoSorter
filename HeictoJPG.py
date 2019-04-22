@@ -2,6 +2,7 @@
 # You will need to have ImageMagick installed: https://www.imagemagick.org/
 
 import os
+from multiprocessing import Process
 import subprocess
 import argparse
 import logging
@@ -72,5 +73,7 @@ if __name__ == "__main__":
 
     heic = HEIC(_source_dir, _save_dir)
     heic.copy_mode = _copy_file
-    heic.convertor()
+    p = Process(target=heic.convertor)
+    p.start()
+    p.join()
     print('\nAll tasks have been completed.')
