@@ -1,9 +1,5 @@
 # Created by .ignore support plugin (hsz.mobi)
 .log
 .gitignore
-.idea/PhotoSorter.iml
-.idea/dbnavigator.xml
-.idea/misc.xml
-.idea/modules.xml
-.idea/workspace.xml
+.idea/
 venv/
